@@ -1,0 +1,7 @@
+La docmuentacion viene implemetada en tres hojas:
+La primera es la hoja de plan de pruebas
+donde especificamos todo lo que requerimos para hacer la automatizacion
+La segunda es la hoja de los bugs
+los bugs son algunas fallas que encontramos mientras haciamos una prueba manual.
+La tercera es la hoja de lo escenarios.
+es donde adjuntamos todos los escenarios, estrategias, los paso a paso de cada modulo que le realizaremos la automatizacion.
