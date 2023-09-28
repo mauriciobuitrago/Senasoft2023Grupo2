@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite errors="0" failures="1" name="Customer Support" skipped="0" tests="1" time="27.74" timestamp="2023-09-28 09:43:54"><testcase name="Message Send Successfult"><failure message="Expected enabled element was not enabled" type="net.thucydides.core.webdriver.exceptions.ElementShouldBeEnabledException">Expected enabled element was not enabled</failure><system-err>Expected enabled element was not enabled&#13;
+com.co.qvision.tasks.CustomerSendTasks.performAs(CustomerSendTasks.java:27)&#13;
+co.com.Senasoft.StepsDefinitions.CustumerStepDefinition.theUserEntersTheirRatingOnTheWebsiteAndPressesTheSubmitButton(CustumerStepDefinition.java:22)&#13;
+cucumber.runner.Runner.runPickle(Runner.java:80)&#13;
+</system-err></testcase></testsuite>

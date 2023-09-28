@@ -1,0 +1,1375 @@
+<html class="js" lang="es"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <script nonce="">
+        
+(function( win, doc ) {
+
+    var errors     = [],
+        errorCount = 0,
+        canParse   = (function() {}).toString && /bkg/.test( function() { bkg; } );
+
+    var NOW,
+        UNDEF;
+
+    var LAST_CLIENT_EVENT;
+
+    var SERVER_ASKED_TO_BLOCK = readCookie( 'error_catcher' ) === 'kill';
+
+    var SHOULD_BLOCK = function( error ) {
+
+        return SERVER_ASKED_TO_BLOCK || error.index > 2;
+
+    };
+
+    var ERROR_TRANSPORT = {
+
+        URL: '/js_errors',
+        METHOD: 'POST',
+        MAX_STACK_LINES: 12,
+        MAX_STACK_LENGTH: 900,
+        MAX_FUNCTION_BODY_LENGTH: 150,
+        STACK_TRUNCATED_TEXT: '(... truncated!)',
+
+        SEND_ONLY_IF: function() {
+
+            return !!doc.getElementById( 'req_info' );
+
+        },
+
+        IS_BOT: function( message ) {
+
+            return getKey( '$u.b01' ) || getKey( 'booking_extra.bot' ) || /^Not implemented/.test( message );
+
+        },
+
+        THIRD_PARTY: {
+
+            ADD_PREFIX: function( thirdPartyKey ) {
+
+                return '3rd_' + thirdPartyKey + ': ';
+
+            },
+
+            SOURCE_MAPPING: {
+
+                'http://cond01.etbxml.com/cond/common.js': 'cheapHotelFinder',
+                'fls.doubleclick.net/activity': 'google_floodlight',
+                'google-analytics.com/analytics.js': 'google_analytics_universal',
+                'doubleclick.net/dc.js': 'google_analytics_classic',
+                'gstatic': 'google_maps',
+                'google': 'google',
+                'clicktale': 'clicktale',
+                'criteo': 'criteo',
+                'usabilla': 'usabilla',
+                'utag.js': 'teallium',
+                'wac.edgecastcdn.net': 'whilokii',
+                'wizebar': 'wizebar',
+                'facebook': 'facebook',
+                'superfish': 'superfish',
+                'jollywallet': 'jollywallet',
+                'blockpage': 'blockpage',
+                'datafastguru': 'datafastguru',
+                'griddy': 'griddy',
+                'showpass': 'showpass',
+                'mscimg': 'cdet',
+                'triggit': 'triggit',
+                'autotag': 'autotag',
+                'conduit': 'conduit',
+                'mzroute': 'mzroute',
+                'twitter': 'twitter',
+                'cloudfront.net/scripts/ld.js': 'cloudfront'
+
+            },
+
+            MESSAGE_MAPPING: {
+
+                'npobject': 'GeckoPlugin',
+                'dealply': 'DealPlyChromePlugin',
+                'ns_error_xpc': 'GeckoPlugin',
+                '_watcherready': 'IEPlugin',
+                '__fCheck': 'MobilePlugin',
+                '__iactive': 'MobilePlugin',
+                '_watcherReady': 'AvastPlugin',
+                'wit_OnDocumentLoad': 'WitmainFirefoxPlugin',
+                'wit_OnBeforeDocumentLoad': 'WitmainFirefoxPlugin',
+                'KasperskyLab': 'KasperskyPlugin',
+                'SetReturnValue': 'FlashPlugin'
+
+            },
+
+            STACK_TRACE_MAPPING: {
+
+                'chrome-extension://': 'ChromePlugin',
+                'kw__injectedscriptmin': 'UnknownPlugin',
+                'datafastguru': 'datafastguru',
+                '__fCheck': 'MobilePlugin',
+                '__iactive': 'MobilePlugin',
+                '__dxutils': 'MobilePlugin',
+                'npobject': 'GeckoPlugin',
+                '_watcherReady': 'AvastPlugin',
+                'wit_OnDocumentLoad': 'WitmainFirefoxPlugin',
+                'wit_OnBeforeDocumentLoad': 'WitmainFirefoxPlugin',
+                'KasperskyLab': 'KasperskyPlugin',
+                'SetReturnValue': 'FlashPlugin',
+                'FO_ADJUSTSCALE': 'GeckoPlugin',
+                'determineyourroad': 'determineyourroad'
+
+            }
+
+        }
+
+    };
+
+    var ERROR_DATA_COLLECTION = {
+
+        /*
+         * If the property redefined via defineError is a function we're always passing as arguments: message, url, line, column and error.
+         * Same arguments that get passed to the onerror handler.
+         */
+
+        invalidate_cache: function() {
+            return +new Date;
+        },
+
+        error: function( message, url, line, column, error, caller ) {
+            if(typeof(this._errorObj) === 'undefined' ) {
+                this._errorObj = this.getErrorObj(message, url, line, column, error, caller);
+            }
+            return this._errorObj.asString;
+        },
+
+        error_type: function( message, url, line, column, error, caller ) {
+            if(typeof(this._errorObj) === 'undefined' ) {
+                this._errorObj = this.getErrorObj(message, url, line, column, error, caller);
+            }
+            return this._errorObj.type;
+        },
+
+        file_name: function( message, url, line, column, error, caller ) {
+            if(typeof(this._errorObj) === 'undefined' ) {
+                this._errorObj = this.getErrorObj(message, url, line, column, error, caller);
+            }
+            return this._errorObj.fileName;
+        },
+
+        function_name: function( message, url, line, column, error, caller ) {
+            if(typeof(this._errorObj) === 'undefined' ) {
+                this._errorObj = this.getErrorObj(message, url, line, column, error, caller);
+            }
+            return this._errorObj.functionName;
+        },
+
+
+        url: function( message, url, line, column, error ) {
+            return this.getErrorSourceFromStack( error && error.stack ) || this.getErrorSource( message, url ) || win.document.location.href.split( '?' )[ 0 ];
+        },
+
+        lno: function( message, url, line, column, error ) {
+            return Number( line ) ? line : this.getFileOffsetFromError( error ).line || this.UNDEF;
+        },
+
+        cno: function( message, url, line, column, error ) {
+            return Number( column ) ? column : this.getFileOffsetFromError( error ).column || this.UNDEF;
+        },
+
+        pid: function() {
+
+            return getKey( 'booking_extra.pageview_id' ) ||
+                   getKey( 'booking.PAGEVIEW_ID' )       ||
+                   getKey( 'BOOKING_PAGEVIEW_ID' )       ||
+                   getKey( 'booking.env.pageview_id' )   ||
+                   getKey( '$u.js_data.PAGEVIEW_ID' )    ||
+                   '(unknown_page_id)';
+
+        },
+
+        stid: function() {
+            return getKey( 'booking_extra.b_stid' );
+        },
+
+        ch: function() {
+            return getKey( 'booking_extra.b_ch' );
+        },
+
+        ref_action: function() {
+            return getKey( 'booking_extra.b_action' );
+        },
+
+        ref_hash: function() {
+            return location.hash;
+        },
+
+        stype: function() {
+            return getKey( 'booking_extra.b_site_type_id' );
+        },
+
+        aid: function() {
+            return getKey( 'booking_extra.b_aid' );
+        },
+
+        lang: function() {
+            return getKey( 'booking_extra.b_lang_for_url' );
+        },
+
+        last_client_event: function() {
+            return LAST_CLIENT_EVENT;
+        },
+
+        scripts: function() {
+
+            var page,
+                pageData,
+                str = '{',
+                scripts = getKey( 'booking.env.scripts_tracking' ) || {};
+
+            for ( page in scripts ) if ( scripts.hasOwnProperty( page ) ) {
+
+                pageData = scripts[ page ];
+                str += '"' + page + '":{"loaded":' + !!pageData.loaded + ',"run":' + !!pageData.run + '},';
+
+            }
+
+            str = str.slice( 0, -1 ) + '}';
+
+            if ( str.length === 1 ) {
+                return '';
+            }
+
+            return str;
+
+        },
+
+        since: function() {
+
+            var timer = win.PageLoadTimer;
+
+            return timer ? NOW - timer.start : UNDEF;
+
+        },
+
+        ready: function() {
+
+            var timer = win.PageLoadTimer;
+
+            if ( ! timer ) {
+                return UNDEF;
+            }
+
+            return timer.document_ready - timer.start ? timer.document_ready - timer.start : 0;
+
+        },
+
+        loaded: function() {
+
+            var timer = win.PageLoadTimer;
+
+            if ( ! timer ) {
+                return UNDEF;
+            }
+
+            return timer.window_load - timer.start ? timer.window_load - timer.start : 0;
+
+        },
+
+        info: function() {
+
+            var info = doc.getElementById( 'req_info' );
+
+            return info ? info.innerHTML : UNDEF;
+
+        },
+
+        errc: function() {
+            return this.error.index + 1;
+        },
+
+        errp: function() {
+
+            var currentIndex,
+                previousIndex,
+                previous;
+
+            if ( ! this.error ) {
+                return 0;
+            }
+
+            currentIndex  = this.error.index;
+            previousIndex = currentIndex - 1;
+
+            if ( currentIndex === 0 || previousIndex < 0 ) {
+                return 0;
+            }
+
+            previous = this.errors[ previousIndex ];
+
+            return previous ? previous.index + 1 : 0;
+
+        },
+
+        stack_trace: function( message, url, line, column, error, caller ) {
+
+            return getErrorStackTrace( error );
+
+        },
+
+        page_owner: function() {
+            return getKey( '$u.js_data.config.page_owner.id' );
+        },
+
+        m: function() {
+            return getKey( '$u.js_data.jset.m' );
+        }
+
+    };
+
+    var E_ = win.E_ = function( error, fnc ) {
+
+        onBookingError( error.message, '', 0, 0, error, fnc );
+
+        E_.skip = true;
+        throw error;
+
+    };
+
+    E_.a = function( args ) {
+        return [].slice.apply( args );
+    };
+
+    var onBookingError = win.onBookingError = win.onerror = function() {
+
+        if ( E_.skip === true ) {
+            E_.skip = false;
+            return;
+        }
+
+        if ( win.onBookingError.skip === true ) {
+            win.onBookingError.skip = false;
+            return;
+        }
+
+        var args = [].slice.apply( arguments ),
+            ctxt = this,
+
+            call = function() {
+
+                onError.apply( ctxt, args );
+
+            };
+
+        args.push( getFunctionCaller( arguments ) );
+
+        if ( ERROR_TRANSPORT.SEND_ONLY_IF() ) {
+
+            call();
+
+        } else {
+
+            setTimeout( call, 100 );
+
+        }
+
+    };
+
+    /*
+     * Enabling plugins
+     */
+
+    win.onerror.plugins = true;
+
+    win.onerror.defineError = function( ERROR_DATA_COLLECTION_PLUGIN ) {
+
+        // We don't want to let random keys to be reported. We must control this.
+        // That's why the extend function only allows key overwriting not addition.
+        extend( ERROR_DATA_COLLECTION, ERROR_DATA_COLLECTION_PLUGIN );
+
+    };
+
+    win.onerror.defineTransport = function( ERROR_TRANSPORT_PLUGIN ) {
+
+        extend( ERROR_TRANSPORT, ERROR_TRANSPORT_PLUGIN );
+
+    };
+
+    win.onerror.errorCollection = function() {
+
+        return errors.slice();
+
+    };
+
+    win.onerror.report = function( message, group, path ) {
+
+        var fnc = function() {};
+
+        fnc.__bookingGroupName__ = group;
+
+        win.onerror( message, path || '', 0, 0, {}, fnc );
+
+    };
+
+
+    /*
+     * Error phases
+     */
+
+    function onError() {
+
+        var error = { index: errorCount++ },
+            args  = [].slice.apply( arguments );
+
+        if ( SHOULD_BLOCK( error ) ) {
+            return false;
+        }
+
+        errors.push( error );
+
+        collectData( error, args );
+
+        LAST_CLIENT_EVENT = UNDEF;
+
+        send( error );
+
+        return false;
+
+    }
+
+    function collectData( error, args ) {
+
+        var context = {
+
+                UNDEF:                    UNDEF,
+                ERROR_TRANSPORT:          ERROR_TRANSPORT,
+
+                errors:                   errors,
+                error:                    error,
+
+                getErrorStackTrace:       getErrorStackTrace,
+                getFunctionCaller:        getFunctionCaller,
+                getErrorSource:           getErrorSource,
+                getErrorGroupObj:         getErrorGroupObj,
+                getErrorObj:              getErrorObj,
+                parseFunctionBody:        parseFunctionBody,
+                parseFunctionName:        parseFunctionName,
+                getFileOffsetFromError:   getFileOffsetFromError,
+                getErrorSourceFromStack:  getErrorSourceFromStack,
+                thirdPartyCheck:          thirdPartyCheck,
+                thirdPartyBreakDownLabel: thirdPartyBreakDownLabel,
+                languageBreakDownLabel:   languageBreakDownLabel,
+                getErrorMessage:          getErrorMessage
+
+            },
+
+            key,
+            value;
+
+        NOW = +new Date;
+
+        for ( key in ERROR_DATA_COLLECTION ) if ( ERROR_DATA_COLLECTION.hasOwnProperty( key ) ) {
+
+            value = ERROR_DATA_COLLECTION[ key ];
+
+            if ( typeof value === 'function' ) {
+                value = value.apply( context, args );
+            }
+
+            if ( typeof value !== 'undefined' && value !== '' ) {
+                error[ key ] =  value;
+            }
+
+        }
+
+        error[ 'bm' ] = encodeURIComponent(args[0] || '');
+
+    }
+
+    function send( error ) {
+
+        beacon({
+
+            url:    ERROR_TRANSPORT.URL,
+            method: ERROR_TRANSPORT.METHOD,
+            error:  serialize( error )
+
+        }, function( responseText, responseStatus ) {
+
+            if ( +responseStatus === 503 || responseText === 'shut up' ) {
+                SERVER_ASKED_TO_BLOCK = true;
+                createCookie( 'error_catcher', 'kill', 30 );
+            }
+
+        });
+
+    }
+
+    
+
+    /*
+     * Init
+     */
+
+    initWrapping();
+
+    function initWrapping() {
+
+        function jQueryWrap( jQuery ) {
+
+            // Making sure we wrap jQuery only once
+            win.onerror.jQueryWrap = jQueryWrap = function() {};
+
+            try {
+
+                var HANDLER_INDEX = '__booking__handler__index__';
+
+                var handlers = {},
+                    count    = 0;
+
+                var onAvailable = typeof jQuery.fn.on !== 'undefined';
+
+                var method = {
+                    on:   onAvailable ? 'on'  : 'bind',
+                    off:  onAvailable ? 'off' : 'unbind',
+                    ajax: 'ajax'
+                };
+
+                function codeToSelectElement( evt ) {
+
+                    var target    = evt.target,
+                        elem      = jQuery( target ),
+
+                        id        = elem.attr( 'id' ),
+                        tagName   = ( target.tagName || '' ).toLowerCase(),
+
+                        parentElem,
+                        parentID,
+                        parentIndex,
+
+                        index,
+                        code;
+
+                    if ( id ) {
+
+                        index = jQuery( '#' + id ).index( this );
+                        code  = '$("#' + id + '").eq(' + index + ')';
+
+                    } else {
+
+                        parentElem  = elem.closest( '[id]' );
+
+                        if ( ! parentElem.length ) {
+                            return UNDEF;
+                        }
+
+                        parentID    = parentElem.attr( 'id' );
+                        parentIndex = jQuery( '#' + parentID ).index( parentElem );
+                        index       = parentElem.find( tagName ).index( target );
+                        code        = '$("#' + parentID + '").eq(' + parentIndex+ ').find("' + tagName + '").eq(' + index + ')';
+
+                    }
+
+                    return code;
+
+                }
+
+                replaceMethod( jQuery.fn, method.on, function( args, index ) {
+
+                    var arg = args[ index ],
+                        wrapped;
+
+                    if ( typeof arg !== 'function' ) {
+                        return;
+                    }
+
+                    wrapped = wrapFunction( arg, function( evt ) {
+
+                        var elementSelector;
+
+                        if (
+
+                            evt &&
+                            evt.type
+
+                        ) {
+
+                            try {
+                                elementSelector = codeToSelectElement( evt );
+                            } catch ( e ) {}
+
+                            if ( elementSelector ) {
+
+                                LAST_CLIENT_EVENT = evt.type + ' on ' + elementSelector;
+                                return;
+
+                            }
+
+                        }
+
+                        LAST_CLIENT_EVENT = UNDEF;
+
+                    });
+
+                    handlers[ count ] = args[ index ] = wrapped;
+
+                    arg[ HANDLER_INDEX ] = count;
+
+                    count += 1;
+
+                });
+
+                replaceMethod( jQuery.fn, method.off, function( args, index ) {
+
+                    var arg = args[ index ],
+                        count;
+
+                    if ( typeof arg !== 'function' ) {
+                        return;
+                    }
+
+                    count = arg[ HANDLER_INDEX ];
+
+                    args[ index ] = handlers[ count ] || arg;
+
+                    delete handlers[ count ];
+
+                });
+
+                replaceMethod( jQuery, method.ajax,
+
+                    function handleOptions( args, index ) {
+
+                        var options = args[ index ];
+
+                        if ( ({}).toString.apply( options ) === '[object Object]' ) {
+
+                            forEachIn( 'success error complete beforeSend', function( callback ) {
+                                options[ callback ] = wrapFunction( options[ callback ] );
+                            });
+
+                        }
+
+                    },
+
+                    function handlePromiseStates( promise ) {
+
+                        forEachIn( 'done fail always then', replaceMethod, promise );
+
+                    }
+
+                );
+
+            } catch ( e ) {}
+
+        }
+
+        try {
+
+            var currentSetTimeout  = win.setTimeout,
+                currentSetInterval = win.setInterval,
+                start              = +new Date;
+
+            if ( currentSetTimeout ) {
+                win.setTimeout = function() {
+                    var args = Array.prototype.slice.call(arguments);
+                    args[0] = wrapFunction(args[0]);
+                    if (currentSetTimeout.apply) {
+                        return currentSetTimeout.apply(this, args);
+                    } else { // because of IE8 and below
+                        return currentSetTimeout(args[0], args[1]);
+                    }
+                };
+            }
+
+            if ( currentSetInterval ) {
+                win.setInterval = function( fnc, delay ) {
+                    var args = Array.prototype.slice.call(arguments);
+                    args[0] = wrapFunction(args[0]);
+                    if (currentSetInterval.apply) {
+                        return currentSetInterval.apply(this, args);
+                    } else { // because of IE8 and below
+                        return currentSetInterval(args[0], args[1]);
+                    }
+                };
+            }
+
+            if ( ! win.console ) {
+                win.console = { info: function() {}, log: function() {}, dir: function() {} };
+            }
+
+            (function frontendReady() {
+
+                if (
+
+                     win.B &&
+                     win.sNSStartup &&
+                     win.B[ win.sNSStartup ] &&
+                     win.B[ win.sNSStartup ].execute
+
+                ) {
+
+                    win.B[ win.sNSStartup ].execute = function( handler, config ) {
+                        return wrapFunction( handler ).call( config );
+                    };
+
+                } else if ( win.document.readyState !== 'complete' && ( (+new Date - start) < (15 * 1000) ) ) {
+
+                    setTimeout( frontendReady, 0 );
+
+                }
+
+            })();
+
+            (function jQueryReady() {
+
+                if ( 'jQuery' in win ) {
+
+                    jQueryWrap( win.jQuery );
+
+                } else if ( win.document.readyState !== 'complete' && ( (+new Date - start) < (15 * 1000) ) ) {
+
+                    setTimeout( jQueryReady, 0 );
+
+                }
+
+            })();
+
+        } catch( e ) {
+
+            /* This shouldn't happen but there's
+             * no problem if the wrappers are not applied
+             * we'll simply have less info about the error
+             */
+
+        }
+
+        // Publishing the wrapper to make it possible when AMD is used
+        win.onerror.jQueryWrap = jQueryWrap;
+
+    }
+
+    /*
+     * Wrapping helpers
+     */
+
+    function wrapFunction( fnc, doThisToo ) {
+
+        var wrapper = typeof fnc === 'function' ? function() {
+
+            var args = [].slice.apply( arguments ), result;
+
+            try {
+
+                 if ( typeof doThisToo === 'function' ) {
+                    doThisToo.apply( this, args );
+                 }
+
+                 result = fnc.apply( this, args );
+
+                 LAST_CLIENT_EVENT = UNDEF;
+
+                 return result;
+
+            } catch ( e ) {
+
+                win.onerror( e.message, e.sourceURL, e.line, e.column, e, fnc );
+
+                if ( 'console' in win ) {
+
+                    console.log( getErrorStackTrace( e, fnc ) || 'Uncaught Error: ' + e.message );
+                    if ( typeof console.trace === 'function' ) {
+                        console.trace();
+                    }
+
+                }
+
+            }
+
+        } : fnc;
+
+        return wrapper;
+
+    }
+
+    function forEachIn( items, callback, context ) {
+
+        var i,
+            len,
+            params,
+            list = items.split( ' ' );
+
+        for ( i = 0, len = list.length; i < len; i += 1 ) {
+
+            params = context ? [ context, list[ i ] ] : [ list[ i ] ];
+
+            callback.apply( null, params );
+
+        }
+
+    }
+
+    function replaceMethod( obj, name, handlerCallback, resultCallback ) {
+
+        var original;
+
+        if ( ! name || typeof obj[ name ] !== 'function' ) {
+            return;
+        }
+
+        original = obj[ name ];
+
+        obj[ name ] = function() {
+
+            var args  = [].slice.apply( arguments ),
+                index = args.length,
+                arg,
+                result;
+
+            while ( index-- ) {
+
+                arg = args[ index ];
+
+                if ( arg ) {
+
+                    if ( typeof handlerCallback === 'function' ) {
+                        handlerCallback( args, index );
+                    } else if ( typeof arg === 'function' ) {
+                        args[ index ] = wrapFunction( arg );
+                    }
+
+                }
+
+            }
+
+            result = original.apply( this, args );
+
+            if ( typeof resultCallback === 'function' ) {
+                resultCallback( result );
+            }
+
+            return result;
+
+        };
+
+    }
+
+    
+
+    /*
+     * Helpers
+     */
+
+    function thirdPartyBreakDownLabel( key ) {
+
+        return '\n<j<s<' + key + '>s>j>';
+
+    }
+
+    function languageBreakDownLabel( language ) {
+
+        return '\n<l<a<n<g<' + language + '>g>n>a>l>';
+
+    }
+
+    function thirdPartyCheck( message, stack, url ) {
+
+        var source     = ( getErrorSource( message, url ) || '' ) + '',
+            thirdParty = ERROR_TRANSPORT.THIRD_PARTY || {},
+            pattern;
+
+        if ( typeof source.toLowerCase === 'undefined' ) {
+            source = '';
+        } else {
+            source = source.toLowerCase();
+        }
+
+        for ( pattern in thirdParty.SOURCE_MAPPING ) {
+
+            if ( source.indexOf( pattern ) !== -1 ) {
+
+                return {
+                    is: true,
+                    key: thirdParty.SOURCE_MAPPING[ pattern ]
+                };
+
+            }
+
+        }
+
+        for ( pattern in thirdParty.STACK_TRACE_MAPPING ) {
+
+            if ( stack.indexOf( pattern ) !== -1 ) {
+
+                return {
+                    is: true,
+                    key: thirdParty.STACK_TRACE_MAPPING[ pattern ]
+                };
+
+            }
+
+        }
+
+        message = message || '';
+        message += '';
+        message = message.toLowerCase();
+
+        for ( pattern in thirdParty.MESSAGE_MAPPING ) {
+            if ( message.indexOf( pattern ) !== -1 ) {
+                return {
+                    is: true,
+                    key: thirdParty.MESSAGE_MAPPING[ pattern ]
+                };
+            }
+        }
+        // As client side HTML templates are rendered inside <script> tag on the page they
+        // don't have a proper source, instead they have a template name or `jstmpl` as a source.
+        // But the message of a JSTMPL error contains `jstmpl::` prefix. So we can still separate them
+        // from the 3rd party errors.
+        if ( ! /(villas|booking|bstatic)\.com/i.test( source ) && ! /^jstmpl::/i.test( message )) {
+            return {
+                is: true,
+                key: 'External Source'
+            }
+        }
+
+        return {
+            is: false,
+            key: ''
+        };
+
+    }
+
+    function sanitizeStackLength( stackText ) {
+
+        var stack,
+            lines;
+
+        if ( ! stackText ) {
+            return '';
+        }
+
+        stack = stackText.split( '\n' );
+        lines = stack.splice( 0, ERROR_TRANSPORT.MAX_STACK_LINES );
+
+        return ( '\n' + lines.join( '\n' ) ).slice( 0, ERROR_TRANSPORT.MAX_STACK_LENGTH ) + ( stack.length ? ERROR_TRANSPORT.STACK_TRUNCATED_TEXT : '' );
+
+    }
+
+    function getErrorStackTrace( error, functionCaller, message ) {
+
+        var stack,
+            lines,
+            file,
+            name,
+            fileOffset;
+
+        if ( ! error ) {
+            return '';
+        }
+
+        message = getErrorMessage( message, error );
+
+        if ( functionCaller && message ) {
+
+            lines = [];
+
+            while ( functionCaller ) {
+
+                name       = functionCaller.name || parseFunctionName( functionCaller ) || parseFunctionBody( functionCaller ) || 'anonymous';
+                file       = getErrorSourceFromStack( error.stack ) || getErrorSource( message, extractUrlSearch( win.document.location.href ) );
+                fileOffset = getFileOffsetFromError( error );
+
+                lines.push( name + '@(' + file + ':' + fileOffset.line + ':' + fileOffset.column + ')' );
+
+                try {
+                    functionCaller = functionCaller.caller;
+                } catch ( e ) { // Strict Mode Enabled
+                    functionCaller = false;
+                }
+
+            }
+
+            if ( lines.length ) {
+
+                lines = [ '<Generated Stack>' ].concat( lines ).concat( [ '</Generated Stack>\n' ] );
+
+                stack = lines.join( '\n' ) + ( error.stack || '' );
+
+                return sanitizeStackLength( stack );
+
+            }
+
+        }
+
+        return sanitizeStackLength( error.stack );
+
+    }
+
+    function getErrorGroupObj(stack, caller) {
+        var callerName,
+            callerSource;
+
+        if ( typeof caller === 'function' ) {
+            callerName   = caller.name || parseFunctionName( caller );
+            callerSource = parseFunctionBody( caller );
+        }
+
+        var location           = win.document.location || {},
+            host               = location.hostname || '',
+            path               = location.pathname || '',
+            fileName           = ( stack.match( /\/\/[^/]+(\/[^: ]+):(\d+):(\d+)/ ) || [ '', '' ] )[ 1 ].split( '?' )[ 0 ] || ( host + path ),
+            functionName       = callerName || ( stack.match( /(?:at)?\s+([0-9a-zA-Z_]+)[\s@]+(?:\(?https?:)?\/\/[^/]+\/[^: ]+:\d+:\d+/ ) || [] )[ 1 ],
+            functionSource     = callerSource || ( stack.match( /(function\([^\)]*\)\{[^@]+\})@(?:\(?https?:)?\/\/[^/]+\/[^: ]+:\d+:\d+/i ) || [] )[ 1 ],
+            functionIdentifier = ( ! functionSource && ! /^(at|code|function)$/i.test( functionName ) && functionName ) || functionSource || 'anonymous';
+
+        fileName.replace( /(\.v[a-zA-Z0-9]+v\.)js$/, '.js' );
+
+        if ( typeof caller === 'function' && caller.__bookingGroupName__ ) {
+            functionIdentifier = caller.__bookingGroupName__;
+        }
+
+        var groupName = 'FULL_STACK_' +fileName + '->' + functionIdentifier + '():';
+
+        if (!functionName) {
+            functionName = functionIdentifier;
+        }
+        return {
+            "fileName":     fileName,
+            "functionName": functionName,
+            "asString":     groupName
+        };
+
+
+    }
+
+    function getErrorGroup( stack, caller ) {
+
+        var errGroupObj = getErrorGroupObj(stack, caller);
+        return errGroupObj.name;
+    }
+
+    function getErrorObj( message, url, line, column, error, caller ) {
+
+        var stack       = this.getErrorStackTrace( error, caller, message ) || '',
+
+            source      = this.getErrorSourceFromStack( error && error.stack ) || this.getErrorSource( message, url ) || win.document.location.href.split( '?' )[ 0 ] || '',
+            thirdParty,
+            errorGroupObj,
+            errorObj = { type: 'unkown', asString: 'unknown', message: message, stack: stack }
+        ;
+
+        /*
+        * There are three type of errors: B0T, THIRD_PARTY, INTERNAL
+        * Lets figure out what we have here
+        */
+
+        if ( ERROR_TRANSPORT.IS_BOT( message ) ) {
+            errorObj.type= 'B0T',
+            errorObj.asString = errorObj.type + ': ' + errorObj.message;
+        }
+        else {
+            thirdParty = thirdPartyCheck( message, stack, source );
+            if ( thirdParty.is ) {
+                errorObj.type = 'THIRD_PARTY';
+                errorObj.thirdPartyKey = thirdParty.key;
+
+                errorObj.asString =   '3rd_Party_External_Script_Error'
+                    + errorObj.thirdPartyKey
+                    + thirdPartyBreakDownLabel( errorObj.thirdPartyKey )
+                    + errorObj.stack;
+            }
+            else {
+                errorGroupObj    = this.getErrorGroupObj( stack, caller );
+                errorObj.type= 'INTERNAL';
+                errorObj.fileName = errorGroupObj.fileName;
+                errorObj.functionName = errorGroupObj.functionName;
+                errorObj.message = getErrorMessage(message, error) || 'Script error';
+                errorObj.asString = errorGroupObj.asString + errorObj.message + errorObj.stack;
+            }
+        }
+        return errorObj;
+    };
+
+    function getKey( path ) {
+
+        var keys    = path.split( /[. ]/ ),
+            objName = keys[ 0 ],
+
+            i, len,
+
+            value = win[ objName ];
+
+        for ( i = 1, len = keys.length; i < len; i += 1 ) {
+
+            if (
+
+                defined( value ) &&
+                /^\[object (Object|Function|Array|global|HTMLDocument)\]$/.test( ({}).toString.apply( value ) )
+
+            ) {
+
+                value = value[ keys[ i ] ];
+
+            } else {
+
+                return defined( value ) ? value : UNDEF;
+
+            }
+
+        }
+
+        return defined( value ) ? value : UNDEF;
+
+    }
+
+    function defined( variable ) {
+
+        return typeof variable !== 'undefined';
+
+    }
+
+    function extend( source, extension ) {
+
+        var attr;
+
+        for ( attr in extension ) {
+
+            if (
+                source.hasOwnProperty( attr ) &&
+                extension.hasOwnProperty( attr )
+            ) {
+
+                source[ attr ] = extension[ attr ];
+
+            }
+
+        }
+
+    }
+
+    function serialize( obj ) {
+
+        var serialized = [],
+
+            key,
+            value;
+
+        for ( key in obj ) if ( obj.hasOwnProperty( key ) ) {
+            serialized.push( key + '=' + win.encodeURIComponent( obj[ key ] ) );
+        }
+
+        return serialized.join( '&' );
+
+    }
+
+    function beacon( config, onResponse ) {
+
+        var request,
+            url = config.url;
+
+        try {
+            request = new win.XMLHttpRequest();
+        } catch( e ) {}
+
+        if ( ! request ) {
+
+            try {
+                request = new win.ActiveXObject( 'Microsoft.XMLHTTP' );
+            } catch( e ) {}
+
+        }
+
+        if ( config.method !== 'POST' ) {
+            url += '?' + config.error;
+        }
+
+        request.open( config.method, url, true );
+        request.setRequestHeader( 'Content-type', 'application/x-www-form-urlencoded' );
+
+        request.onreadystatechange = function () {
+            if ( request.readyState === 4 ) {
+                onResponse( request.responseText, request.status );
+            }
+        };
+
+        request.send( config.error );
+
+    }
+
+    function extractUrlPath( url ) {
+
+        var path = ( url.match( /\/\/[^/]+(\/[^?]+)/ ) || [] )[ 1 ];
+
+        return path || url;
+
+    }
+
+    function extractUrlSearch( url ) {
+
+        return ( url || '' ).split( '?' )[ 0 ];
+
+    }
+
+    function getErrorMessage( message, error ) {
+
+        return message ? message : ( error ? error.message : '' );
+
+    }
+
+    function getErrorSource( message, url ) {
+
+        return message && message.srcElement && message.srcElement.src && typeof message.srcElement.src === 'string' ? message.srcElement.src : url;
+
+    }
+
+    function getErrorSourceFromStack( stack ) {
+
+        return ( ( stack || '' ).match( /((?:https?:)?\/\/[^/]+\/[^: ]+):(\d+):(\d+)/ ) || [ '', '' ] )[ 1 ].split( '?' )[ 0 ];
+
+    }
+
+    function getFileOffsetFromError( error ) {
+
+        if ( ! error ) {
+            return { line: 0, column: 0 };
+        }
+
+        var offset = ( error.stack || '' ).match( /:(\d+)(?::(\d+))?/ ) || [ 0, 0, 0 ],
+            line   = Math.abs( error.number ? +error.number : 0 ) || offset[ 1 ] || 0,
+            column = offset[ 2 ] || 0;
+
+        return {
+            line:   +line,
+            column: +column
+        };
+
+    }
+
+    function getFunctionCaller( args ) {
+
+        var caller,
+            undef;
+
+        try {
+
+            caller = args && args.callee && args.callee.caller ? args.callee.caller : undef;
+
+        } catch ( e ) { /* Strict Mode Enabled */ }
+
+        return caller;
+
+    }
+
+    function parseFunctionName( fnc ) {
+
+        var source;
+
+        if ( ! canParse || typeof fnc !== 'function' ) {
+            return '';
+        }
+
+        source = fnc.toString();
+
+        return ( source.match( /function\s+([a-zA-Z0-9_]+)\s*\(/ ) || [] )[ 1 ] || '';
+
+    }
+
+    function parseFunctionBody( fnc ) {
+
+        var source;
+
+        if ( ! canParse ) {
+            return '';
+        }
+
+        source = fnc.toString()
+                    .replace( /[\n\r\t\s@]+/g, '' )
+                    .slice( 0, -1 )
+                    .slice( 0, ERROR_TRANSPORT.MAX_FUNCTION_BODY_LENGTH ) + ' ... }';
+
+        return source;
+
+    }
+
+    /* PPK's cookie scripts: http://www.quirksmode.org/js/cookies.html */
+    function createCookie( name, value, days ) {
+
+        var expires = '';
+
+        if ( days ) {
+            var date = new Date();
+            date.setTime( date.getTime() + ( days * 24 * 60 * 60 * 1000 ) );
+
+            expires = '; expires=' + date.toGMTString();
+        }
+
+        doc.cookie = name + '=' + value + expires + '; path=/';
+
+    }
+
+    function readCookie( name ) {
+
+        var cookies = doc.cookie.split( ';' ),
+            cookie,
+
+            i, len;
+
+        name = name + '=';
+
+        for( i = 0, len = cookies.length; i < len; i += 1 ) {
+
+            cookie = cookies[ i ];
+
+            while ( cookie.charAt( 0 ) === ' ' ) {
+                cookie = cookie.substring( 1, cookie.length );
+            }
+
+            if ( cookie.indexOf( name ) === 0 ) {
+                return cookie.substring( name.length, cookie.length );
+            }
+
+        }
+
+        return null;
+
+    }
+
+})( this, this.document );
+
+
+
+try {
+    (function(){var e=false;var t=window.location.protocol.toLowerCase().substr(0,window.location.protocol.length-1);var n=window.location.host.toLowerCase().replace(/\.$/, '');if(t!=="https")e=true;if(n.substr(n.length-12)!==".booking.com")e=true;if(e){var r="https://www.booking.com/_etnht"+"?cpr="+encodeURIComponent(t)+"&ch="+encodeURIComponent(n)+"&we=we"+"&cpa="+encodeURIComponent(window.location.pathname);if(window.$u!==undefined&&$u.application!==undefined){r+="&a="+encodeURIComponent($u.application.application);if($u.application.tag!==undefined)r+="&at="+encodeURIComponent($u.application.tag)}if(document.referrer!==undefined&&document.referrer!="")r+="&cr="+encodeURIComponent(document.referrer);document.createElement("img").setAttribute("src",r)}})();
+} catch( e ) {}
+
+
+
+(function(window, booking) {
+
+booking.reportError = function( err, title ) {
+
+    var message = '', prefix = '[' + ( title || 'Reported Error' ) + '] ';
+
+    try {
+        message = ( prefix + ( err.message || '' ) + ' ' + ( err.stack || '' ) ).slice( 0, 500 );
+    } catch( e ) {}
+
+    if ( message ) {
+        window.onerror( message );
+    }
+
+};
+})(window, window.booking = window.booking || {});
+
+    </script>
+
+<script nonce="">(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+
+    <title>Booking.com</title>
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="origin-when-cross-origin">
+
+<link rel="icon" href="https://xx.bstatic.com/static/img/favicon.ico" sizes="any">
+<link rel="icon" href="https://xx.bstatic.com/static/img/favicon.svg" type="image/svg+xml">
+<script nonce="">
+var booking = B = booking || {};
+booking.env={"cc1":"co","static_hostnames":["https://cf.bstatic.com"],"copy_tags":{"sign-in":{"description":null,"title":null}},"b_action":"Signin_Index","device_class":"desktop","lang_label":"Espa\u00f1ol","phone_countries":[{"name":"Andorra","prefix":"+376","country_code":"ad"},{"country_code":"ae","name":"Emiratos \u00c1rabes Unidos","prefix":"+971"},{"prefix":"+93","name":"Afganist\u00e1n","country_code":"af"},{"prefix":"+1 268","name":"Antigua y Barbuda","country_code":"ag"},{"prefix":"+1 264","name":"Anguila","country_code":"ai"},{"country_code":"al","prefix":"+355","name":"Albania"},{"country_code":"am","prefix":"+374","name":"Armenia"},{"country_code":"ao","name":"Angola","prefix":"+244"},{"prefix":"+672","name":"Ant\u00e1rtida","country_code":"aq"},{"name":"Argentina","prefix":"+54","country_code":"ar"},{"country_code":"as","prefix":"+1 684","name":"Samoa Americana"},{"prefix":"+43","name":"Austria","country_code":"at"},{"country_code":"au","name":"Australia","prefix":"+61"},{"country_code":"aw","name":"Aruba","prefix":"+297"},{"country_code":"az","name":"Azerbaiy\u00e1n","prefix":"+994"},{"country_code":"ba","name":"Bosnia y Herzegovina","prefix":"+387"},{"name":"Barbados","prefix":"+1 246","country_code":"bb"},{"prefix":"+880","name":"Bangladesh","country_code":"bd"},{"name":"B\u00e9lgica","prefix":"+32","country_code":"be"},{"name":"Burkina Faso","prefix":"+226","country_code":"bf"},{"country_code":"bg","name":"Bulgaria","prefix":"+359"},{"country_code":"bh","prefix":"+973","name":"Bahr\u00e9in"},{"name":"Burundi","prefix":"+257","country_code":"bi"},{"country_code":"bj","name":"Ben\u00edn","prefix":"+229"},{"country_code":"bl","name":"San Bartolom\u00e9","prefix":"+590"},{"country_code":"bm","prefix":"+1 441","name":"Bermudas"},{"country_code":"bn","prefix":"+673","name":"Brun\u00e9i Darussalam"},{"country_code":"bo","prefix":"+591","name":"Bolivia"},{"prefix":"+599","name":"Bonaire, Saint Eustatius y Saba","country_code":"bq"},{"name":"Brasil","prefix":"+55","country_code":"br"},{"name":"Bahamas","prefix":"+1 242","country_code":"bs"},{"name":"But\u00e1n","prefix":"+975","country_code":"bt"},{"name":"Botsuana","prefix":"+267","country_code":"bw"},{"prefix":"+375","name":"Bielorrusia","country_code":"by"},{"prefix":"+501","name":"Belice","country_code":"bz"},{"prefix":"+1","name":"Canad\u00e1","country_code":"ca"},{"country_code":"cc","prefix":"+61","name":"Islas Cocos"},{"prefix":"+243","name":"Rep\u00fablica Democr\u00e1tica del Congo","country_code":"cd"},{"prefix":"+236","name":"Rep\u00fablica Centroafricana","country_code":"cf"},{"country_code":"cg","prefix":"+242","name":"Congo"},{"prefix":"+41","name":"Suiza","country_code":"ch"},{"name":"Costa de Marfil","prefix":"+225","country_code":"ci"},{"country_code":"ck","name":"Islas Cook","prefix":"+682"},{"name":"Chile","prefix":"+56","country_code":"cl"},{"country_code":"cm","prefix":"+237","name":"Camer\u00fan"},{"country_code":"cn","name":"China","prefix":"+86"},{"prefix":"+57","name":"Colombia","country_code":"co"},{"prefix":"+506","name":"Costa Rica","country_code":"cr"},{"country_code":"cu","name":"Cuba","prefix":"+53"},{"name":"Cabo Verde","prefix":"+238","country_code":"cv"},{"country_code":"cw","prefix":"+599","name":"Cura\u00e7ao"},{"prefix":"+61","name":"Isla de Navidad","country_code":"cx"},{"country_code":"cy","prefix":"+357","name":"Chipre"},{"name":"Rep\u00fablica Checa","prefix":"+420","country_code":"cz"},{"country_code":"de","name":"Alemania","prefix":"+49"},{"country_code":"dj","name":"Yibuti","prefix":"+253"},{"name":"Dinamarca","prefix":"+45","country_code":"dk"},{"country_code":"dm","prefix":"+1 767","name":"Dominica"},{"country_code":"do","prefix":"+1","name":"Rep\u00fablica Dominicana"},{"name":"Argelia","prefix":"+213","country_code":"dz"},{"country_code":"ec","name":"Ecuador","prefix":"+593"},{"prefix":"+372","name":"Estonia","country_code":"ee"},{"prefix":"+20","name":"Egipto","country_code":"eg"},{"prefix":"+291","name":"Eritrea","country_code":"er"},{"name":"Espa\u00f1a","prefix":"+34","country_code":"es"},{"prefix":"+251","name":"Etiop\u00eda","country_code":"et"},{"country_code":"fi","prefix":"+358","name":"Finlandia"},{"prefix":"+679","name":"Fiyi","country_code":"fj"},{"country_code":"fk","prefix":"+500","name":"Islas Malvinas"},{"country_code":"fm","name":"Micronesia","prefix":"+691"},{"country_code":"fo","prefix":"+298","name":"Islas Feroe"},{"prefix":"+33","name":"Francia","country_code":"fr"},{"prefix":"+241","name":"Gab\u00f3n","country_code":"ga"},{"country_code":"gb","prefix":"+44","name":"Reino Unido"},{"name":"Granada","prefix":"+1 473","country_code":"gd"},{"country_code":"ge","prefix":"+995","name":"Georgia"},{"name":"Guayana Francesa","prefix":"+594","country_code":"gf"},{"country_code":"gg","name":"Guernsey","prefix":"+44 1481"},{"prefix":"+233","name":"Ghana","country_code":"gh"},{"country_code":"gi","name":"Gibraltar","prefix":"+350"},{"country_code":"gl","prefix":"+299","name":"Groenlandia"},{"country_code":"gm","name":"Gambia","prefix":"+220"},{"prefix":"+224","name":"Guinea","country_code":"gn"},{"name":"Guadalupe","prefix":"+590","country_code":"gp"},{"country_code":"gq","name":"Guinea Ecuatorial","prefix":"+240"},{"name":"Grecia","prefix":"+30","country_code":"gr"},{"name":"Islas Georgias del Sur y Sandwich del Sur","prefix":"+44","country_code":"gs"},{"country_code":"gt","prefix":"+502","name":"Guatemala"},{"country_code":"gu","prefix":"+1 671","name":"Guam"},{"country_code":"gw","name":"Guinea-Bis\u00e1u","prefix":"+245"},{"prefix":"+592","name":"Guyana","country_code":"gy"},{"country_code":"hk","name":"Hong Kong","prefix":"+852"},{"prefix":"+61","name":"Islas Heard y McDonald","country_code":"hm"},{"country_code":"hn","name":"Honduras","prefix":"+504"},{"name":"Croacia","prefix":"+385","country_code":"hr"},{"country_code":"ht","name":"Hait\u00ed","prefix":"+509"},{"country_code":"hu","prefix":"+36","name":"Hungr\u00eda"},{"country_code":"id","prefix":"+62","name":"Indonesia"},{"prefix":"+353","name":"Irlanda","country_code":"ie"},{"name":"Israel","prefix":"+972","country_code":"il"},{"country_code":"im","prefix":"+44","name":"Isla de Man"},{"country_code":"in","name":"India","prefix":"+91"},{"country_code":"io","name":"Territorio Brit\u00e1nico del Oc\u00e9ano \u00cdndico","prefix":"+246"},{"country_code":"iq","name":"Irak","prefix":"+964"},{"name":"Ir\u00e1n","prefix":"+98","country_code":"ir"},{"prefix":"+354","name":"Islandia","country_code":"is"},{"country_code":"it","name":"Italia","prefix":"+39"},{"name":"Jersey","prefix":"+44 1534","country_code":"je"},{"name":"Jamaica","prefix":"+1 876","country_code":"jm"},{"prefix":"+962","name":"Jordania","country_code":"jo"},{"prefix":"+81","name":"Jap\u00f3n","country_code":"jp"},{"country_code":"ke","prefix":"+254","name":"Kenia"},{"country_code":"kg","name":"Kirguizist\u00e1n","prefix":"+996"},{"prefix":"+855","name":"Camboya","country_code":"kh"},{"prefix":"+686","name":"Kiribati","country_code":"ki"},{"country_code":"km","name":"Comores","prefix":"+269"},{"country_code":"kn","name":"San Crist\u00f3bal y Nieves","prefix":"+1 869"},{"country_code":"kp","name":"Corea del Norte","prefix":"+850"},{"country_code":"kr","prefix":"+82","name":"Corea del Sur"},{"country_code":"kw","name":"Kuwait","prefix":"+965"},{"country_code":"ky","name":"Islas Caim\u00e1n","prefix":"+1 345"},{"name":"Kazajist\u00e1n","prefix":"+7","country_code":"kz"},{"country_code":"la","name":"Laos","prefix":"+856"},{"prefix":"+961","name":"L\u00edbano","country_code":"lb"},{"country_code":"lc","prefix":"+1 758","name":"Santa Luc\u00eda"},{"name":"Liechtenstein","prefix":"+423","country_code":"li"},{"</script></head></html>

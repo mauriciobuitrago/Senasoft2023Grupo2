@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Screenshots</title>
+
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<!--[if IE 7]>
+<!--<link rel="stylesheet" href="font-awesome/css/font-awesome-ie7.min.css">-->
+
+<link rel="stylesheet" type="text/css" href="fontawesome-free-5.7.2-web/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="fontawesome-free-5.7.2-web/css/v4-shims.min.css">
+
+<!-- JQuery -->
+<script type="text/javascript" src="scripts/jquery-1.11.1.min.js"></script><link rel="stylesheet" type="text/css" href="chartist/chartist-plugin-tooltip/dist/chartist-plugin-tooltip.min.css">
+<link rel="stylesheet" type="text/css" href="chartist/dist/chartist.min.css">
+<script src="chartist/dist/chartist.min.js"></script>
+<script src="chartist/chartist-plugin-tooltip/dist/chartist-plugin-tooltip.min.js"></script>
+<!-- Required Stylesheets -->
+<link href="bootstrap-treeview/dist/bootstrap-treeview.min.css" rel="stylesheet">
+
+<!-- Required Javascript -->
+<script src="bootstrap-treeview/dist/bootstrap-treeview.min.js"></script><!-- DataTables -->
+<link type="text/css" href="datatables/1.10.19/datatables.min.css" rel="stylesheet" />
+<script type="text/javascript" src="datatables/1.10.19/datatables.min.js"></script>
+
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="datatables/1.10.19/datatables.bootstrap4.min.js"></script>
+<link type="text/css" href="datatables/1.10.19/datatables.bootstrap4.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="css/core.css"/>
+<link rel="stylesheet" href="css/link.css"/>
+<link type="text/css" media="screen" href="css/screen.css" rel="Stylesheet"/><!-- Nivo Slider -->
+<link rel="stylesheet" href="nivo-slider/3.2/nivo-slider.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="nivo-slider/3.2/themes/default/default.css" type="text/css" media="screen" />
+<script src="nivo-slider/3.2/jquery.nivo.slider.pack.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+
+        var screenshotIndex = getUrlVars()["screenshot"];
+
+        $(window).load(function () {
+            $('#slider').nivoSlider({
+                startSlide: screenshotIndex,
+                effect: 'fade',
+                animSpeed: 200,
+                manualAdvance: true
+            });
+        });
+
+        $(window).keydown(function(e) {
+            switch(e.which) {
+                case 37:
+                    $('a.nivo-prevNav').click();
+                    break;
+                case 39:
+                    $('a.nivo-nextNav').click();
+                    break;
+            }
+        });
+    </script>
+
+</head>
+
+<body>
+<div id="topheader">
+    <div id="topbanner">
+        <div id="logo"><a href="index.html"><img src="images/serenity-logo.png" border="0"/></a></div>
+        <div id="projectname-banner" style="float:right">
+            <span class="projectname">
+                <span class="projecttitle"></span>
+                <span class="projectsubtitle"></span>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="middlecontent">
+    <div id="contenttop">
+        <div class="middlebg">
+            <span class="breadcrumbs">
+                <a href="index.html">Home</a>
+                > <span class="truncate-40"><a
+                    href="5f59b805bdf834bb9e5ca1c5ef6e823575f66b800ec0fe736fe3c1b358dde955.html">Accommodation</a></span>
+                > <span class="truncate-60"><a
+                    href="299aa11a342b330ec2ae421c2f1fd0bb00148efc59650285a540f4ed0240ebe8.html">Search Accommodations Filters successful </a></span>
+                > Screenshots
+            </span>
+        </div>
+        <div class="rightbg"></div>
+    </div>
+
+    <div class="clr"></div>
+
+    <!--/* starts second table*/-->
+<div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#"><i class="fa fa-check-square-o"></i> Overall Test Results</a>
+        </li>
+        <li >
+            <a href="capabilities.html"><i class="fa fa-book"></i> Requirements</a>
+        </li>
+        <li >
+            <a href="576946480b52ad056d6f5bddf874399c83582ecf90963cc074a14c70580e7d9f.html"><i class="fa fa-comments-o"></i> Features</a>
+        </li>
+    </ul>
+    <span class="date-and-time"><a href="build-info.html"><i class="fa fa-info-circle"></i></a> Report generated 28-09-2023 08:19</span>
+    <br style="clear:left"/>
+</div>
+
+    <div class="clr"></div>
+
+
+    <div id="contentbody">
+        <div class="titlebar">
+            <div class="story-title">
+                <table class="outcome-header">
+                    <tr>
+                        <td>
+                            <div>
+                                <h3 class="discreet-story-header">
+                                    <i class="fa fa-2x fa-comments-o"></i>
+                                    <span class="story-header-title">Accommodation </span>
+                                    <span class="badge tag-badge" style="">Feature</span>
+                                </h3>
+
+                                <div class="discreet-requirement-narrative-title">
+                                I need to perform actions in the Accommodation module
+                                </div>
+                            </div>
+
+                        </td>
+                        <td valign="top" align="right">
+                            <p class="tag">
+                                <span class="badge tag-badge" style="background:default;"
+                                    <i class="fa fa-tag"></i>&nbsp;<a class="tagLink" style="background:default;" href="1125f9479f154d070e47d8f2c7603386f32332c0153132e035d2dd0fb76ce902.html">Reservationbyfiltres
+                                    (tag)</a>
+                                </span>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="story-title">
+                <table class="outcome-header">
+                    <tr>
+                        <td colspan="2" class="test-title-bar">
+                            <span class="outcome-icon"><a href='##beforetable'><i class='fa fa-check-circle-o success-icon fa-2x' title='SUCCESS'></i></a></span>
+                            <span class="test-case-title">
+                                <span class="success-color">Search Accommodations Filters successful
+                                    <span class="related-issue-title"></span>
+                                </span>
+                            </span>
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="clr"></div>
+
+
+    <div id="beforetable"></div>
+    <div id="contenttilttle">
+        <div class="slider-wrapper theme-default">
+            <div id="slider">
+                <img src="7e876cf5495c2d746099b96c5fc771c3cdeeca221441676914e6f7f44e5c4a24.png" title=" Given the user Enter the website" width="1366"/>
+                <img src="7e876cf5495c2d746099b96c5fc771c3cdeeca221441676914e6f7f44e5c4a24.png" title=" User opens the https://www.booking.com/" width="1366"/>
+                <img src="7e876cf5495c2d746099b96c5fc771c3cdeeca221441676914e6f7f44e5c4a24.png" title=" Given the user Enter the website (completed)" width="1366"/>
+                <img src="8576fb21279d331f7f6fb57c7afb4befde633d49f42b3058c008c5cfb2d9c236.png" title=" When the is in the Results module and select several filters
+| city |
+| popayan |" width="1366"/>
+                <img src="8576fb21279d331f7f6fb57c7afb4befde633d49f42b3058c008c5cfb2d9c236.png" title=" User close message" width="1366"/>
+                <img src="8576fb21279d331f7f6fb57c7afb4befde633d49f42b3058c008c5cfb2d9c236.png" title=" User clicks on Ignorar mensaje" width="1366"/>
+                <img src="3f700d989edc69034a0f88d1aa9b6911d49450e6c48a88ae1f9fecf95b2a524b.png" title=" User clicks on Ignorar mensaje (completed)" width="1366"/>
+                <img src="3f700d989edc69034a0f88d1aa9b6911d49450e6c48a88ae1f9fecf95b2a524b.png" title=" User close message (completed)" width="1366"/>
+                <img src="3f700d989edc69034a0f88d1aa9b6911d49450e6c48a88ae1f9fecf95b2a524b.png" title=" User search accommodation tasks" width="1366"/>
+                <img src="3f700d989edc69034a0f88d1aa9b6911d49450e6c48a88ae1f9fecf95b2a524b.png" title=" User enters 'city' into Escribir lugar de hospedaje" width="1366"/>
+                <img src="a7d4f9b76f799282b35853e13e61a6e433bb3ede4ce72c1c59f5e54cb831a756.png" title=" User enters 'city' into Escribir lugar de hospedaje (completed)" width="1366"/>
+                <img src="a7d4f9b76f799282b35853e13e61a6e433bb3ede4ce72c1c59f5e54cb831a756.png" title=" User clicks on A&ntilde;adir fechas de alojamiento" width="1366"/>
+                <img src="16d7e77f343d9df64e006c9ef3b346ed18f5cdb66b955e014cdf18b1b16bf4f9.png" title=" User clicks on A&ntilde;adir fechas de alojamiento (completed)" width="1366"/>
+                <img src="16d7e77f343d9df64e006c9ef3b346ed18f5cdb66b955e014cdf18b1b16bf4f9.png" title=" User clicks on A&ntilde;adir fechas de primer chequeo" width="1366"/>
+                <img src="c804b6993fae66c7b6736de2f153788b1a91b1ce286816adacbb16fdf1e9d327.png" title=" User clicks on A&ntilde;adir fechas de primer chequeo (completed)" width="1366"/>
+                <img src="c804b6993fae66c7b6736de2f153788b1a91b1ce286816adacbb16fdf1e9d327.png" title=" User clicks on A&ntilde;adir fechas de ultimo chequeo" width="1366"/>
+                <img src="0e9756042e11bfd84698b632ce089d27ce4aece71a8f6612efff8b04e4c2619b.png" title=" User clicks on A&ntilde;adir fechas de ultimo chequeo (completed)" width="1366"/>
+                <img src="0e9756042e11bfd84698b632ce089d27ce4aece71a8f6612efff8b04e4c2619b.png" title=" User clicks on A&ntilde;adir fechas de alojamiento" width="1366"/>
+                <img src="f72926beb25dfdd9048e86ed019232c4916643eaa7d35b07a2bd270dce0f7bf1.png" title=" User clicks on A&ntilde;adir fechas de alojamiento (completed)" width="1366"/>
+                <img src="f72926beb25dfdd9048e86ed019232c4916643eaa7d35b07a2bd270dce0f7bf1.png" title=" User clicks on Agregar personas" width="1366"/>
+                <img src="aafea1bbda261eb9cc6cecd5a05b7a437a23fffb98dbd0405dd384e74e32c17d.png" title=" User clicks on Agregar personas (completed)" width="1366"/>
+                <img src="aafea1bbda261eb9cc6cecd5a05b7a437a23fffb98dbd0405dd384e74e32c17d.png" title=" User clicks on Agregar Adultos" width="1366"/>
+                <img src="5b77ca4c1dc53b9829f6d959e35e4a27fcb8bd2c733e68f4ead929e0c9a91343.png" title=" User clicks on Agregar Adultos (completed)" width="1366"/>
+                <img src="5b77ca4c1dc53b9829f6d959e35e4a27fcb8bd2c733e68f4ead929e0c9a91343.png" title=" User clicks on Agregar Ni&ntilde;os" width="1366"/>
+                <img src="648676cbfacf7d57fa7f37ecd501311642d5e57a2562f464645524eac544d164.png" title=" User clicks on Agregar Ni&ntilde;os (completed)" width="1366"/>
+                <img src="648676cbfacf7d57fa7f37ecd501311642d5e57a2562f464645524eac544d164.png" title=" User clicks on Agregar Ni&ntilde;os" width="1366"/>
+                <img src="0d8cefcfcfe110bd4d6615ef44ad96cbaa5477952d4223d38cf2fd7ba423fb1f.png" title=" User clicks on Agregar Ni&ntilde;os (completed)" width="1366"/>
+                <img src="0d8cefcfcfe110bd4d6615ef44ad96cbaa5477952d4223d38cf2fd7ba423fb1f.png" title=" User clicks on Escojer Cantidad de habitaciones" width="1366"/>
+                <img src="34dfb79398181f9dcaa8fac2398f4f8a8a5fb95603079c032a160249202bb954.png" title=" User clicks on Escojer Cantidad de habitaciones (completed)" width="1366"/>
+                <img src="34dfb79398181f9dcaa8fac2398f4f8a8a5fb95603079c032a160249202bb954.png" title=" User clicks on Agregar Edad de los ni&ntilde;os" width="1366"/>
+                <img src="fcbf2f4ffe11be1c6d1f528f24832bc6556082b3abef0b8e294a6c7cda239d56.png" title=" User clicks on Agregar Edad de los ni&ntilde;os (completed)" width="1366"/>
+                <img src="fcbf2f4ffe11be1c6d1f528f24832bc6556082b3abef0b8e294a6c7cda239d56.png" title=" User clicks on Escojer Edad del ni&ntilde;o 1" width="1366"/>
+                <img src="050120c7c5d09690ccc29e619ed696c68d81d095f508e00da07c5ecf50249fc5.png" title=" User clicks on Escojer Edad del ni&ntilde;o 1 (completed)" width="1366"/>
+                <img src="050120c7c5d09690ccc29e619ed696c68d81d095f508e00da07c5ecf50249fc5.png" title=" User clicks on Agregar Edad de los ni&ntilde;os" width="1366"/>
+                <img src="cc776c8b99077808a3c3bfd041d5510b0bb2511d290768d6af80603e6fe32074.png" title=" User clicks on Agregar Edad de los ni&ntilde;os (completed)" width="1366"/>
+                <img src="cc776c8b99077808a3c3bfd041d5510b0bb2511d290768d6af80603e6fe32074.png" title=" User clicks on Escojer Edad del ni&ntilde;o 2" width="1366"/>
+                <img src="cc776c8b99077808a3c3bfd041d5510b0bb2511d290768d6af80603e6fe32074.png" title=" User clicks on Escojer Edad del ni&ntilde;o 2 (completed)" width="1366"/>
+                <img src="cc776c8b99077808a3c3bfd041d5510b0bb2511d290768d6af80603e6fe32074.png" title=" User clicks on Boton guardar" width="1366"/>
+                <img src="611d6c32c3f0c992fbfb0e66ef109b0794da632817273bbaab43a8d27e15cb67.png" title=" User clicks on Boton guardar (completed)" width="1366"/>
+                <img src="611d6c32c3f0c992fbfb0e66ef109b0794da632817273bbaab43a8d27e15cb67.png" title=" User clicks on Boton Buscar" width="1366"/>
+                <img src="22fac6c2b7602d5bc3cabb8c4ddc92d82ef3d66e5cffe13555f3b4715feaa79e.png" title=" User clicks on Boton Buscar (completed)" width="1366"/>
+                <img src="ba5ddfd181f23e38b58e3d4fa3c096ea91b146e2b82ca5f2e412a5f46d5b9341.png" title=" User search accommodation tasks (completed)" width="1366"/>
+                <img src="ba5ddfd181f23e38b58e3d4fa3c096ea91b146e2b82ca5f2e412a5f46d5b9341.png" title=" User search by filters task" width="1366"/>
+                <img src="a86caea0006387b2b0d78fc2d2ea0f596883c59570930316ad93693523442017.png" title=" User clicks on Seleeccioner un filtro" width="1366"/>
+                <img src="eca4fe9e91f881918cbe6cf5d388e4e7a428182f386f54eb0f44274718b195e8.png" title=" User clicks on Seleeccioner un filtro (completed)" width="1366"/>
+                <img src="f8fa41f38cb829e7053ab4fcca62e00d148f62ae6f6173af735765df7e4e8862.png" title=" User clicks on Seleeccioner un filtro" width="1366"/>
+                <img src="d24ff29b476510ad820201dbb9555fda5324b0350c8af144578568c7003765f3.png" title=" User clicks on Seleeccioner un filtro (completed)" width="1366"/>
+                <img src="73d56d8a69f4c2ded9389eace0c44ee1b3e414c5c1e81bfeaf53d2153b6fb6b6.png" title=" User clicks on Seleeccioner un filtro" width="1366"/>
+                <img src="cbb51ef1530123bd9d7ecff5b8567268b5fcc789e468fa3f7c2836b3454accf5.png" title=" User clicks on Seleeccioner un filtro (completed)" width="1366"/>
+                <img src="2b0dad49c68f56147f779dd102faa0791131cb9fa4dd2eb42f1cb99731c0d780.png" title=" User clicks on Ver producto" width="1366"/>
+                <img src="2b0dad49c68f56147f779dd102faa0791131cb9fa4dd2eb42f1cb99731c0d780.png" title=" User clicks on Ver producto (completed)" width="1366"/>
+                <img src="35d0e72f86c6654e5c1bcbefaf2f28e2186c997372d0f778d91c5e5e29e02fde.png" title=" User search by filters task (completed)" width="1366"/>
+                <img src="35d0e72f86c6654e5c1bcbefaf2f28e2186c997372d0f778d91c5e5e29e02fde.png" title=" When the is in the Results module and select several filters
+| city |
+| popayan | (completed)" width="1366"/>
+                <img src="35d0e72f86c6654e5c1bcbefaf2f28e2186c997372d0f778d91c5e5e29e02fde.png" title=" Then He will see the new results obtained by applying the filters" width="1366"/>
+                <img src="35d0e72f86c6654e5c1bcbefaf2f28e2186c997372d0f778d91c5e5e29e02fde.png" title=" Then verify result filter should be (true)" width="1366"/>
+                <img src="35d0e72f86c6654e5c1bcbefaf2f28e2186c997372d0f778d91c5e5e29e02fde.png" title=" Then He will see the new results obtained by applying the filters (completed): <span class='success-color'>SUCCESS</span>" width="1366"/>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<div id="beforefooter"></div>
+<div id="bottomfooter">
+    <span class="version">Serenity BDD version 2.0.81</span>
+</div>
+</body>
+</html>

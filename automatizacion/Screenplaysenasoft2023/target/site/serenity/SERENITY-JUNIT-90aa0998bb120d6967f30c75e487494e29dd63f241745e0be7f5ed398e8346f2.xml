@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite errors="0" failures="1" name="car rental" skipped="0" tests="1" time="22.24" timestamp="2023-09-28 04:53:51"><testcase name=""><failure message="Expected enabled element was not enabled" type="net.thucydides.core.webdriver.exceptions.ElementShouldBeEnabledException">Expected enabled element was not enabled</failure><system-err>Expected enabled element was not enabled&#13;
+com.co.qvision.tasks.CarRentalTask.performAs(CarRentalTask.java:29)&#13;
+co.com.Senasoft.StepsDefinitions.CarRentalStepDefinition.youClickOnCarRentalAndInTheSearchSessionFillOutTheRequiredData(CarRentalStepDefinition.java:27)&#13;
+cucumber.runner.Runner.runPickle(Runner.java:80)&#13;
+</system-err></testcase></testsuite>
